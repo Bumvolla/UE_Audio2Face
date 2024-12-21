@@ -71,10 +71,13 @@ void UAudio2FaceManager::LoadUSD(const FString& FilePath, FHTTPCompleteDelegate 
 
         if (SanitizePathSuceed)
         {
-            UE_LOG(Log_Audio2Face, Log, TEXT("USD file has been loaded from path %s"), *SanitizedPath);
+            UE_LOG(Log_Audio2Face, Log, TEXT("USD started loading from path %s"), *SanitizedPath);
         }
         else
+        {
             UE_LOG(Log_Audio2Face, Warning, TEXT("USD file did not exist in path %s"), *SanitizedPath);
+            return;
+        }
 
         const FHTTPRequest LoadRequest(
             A2F_ip,
@@ -152,6 +155,7 @@ void UAudio2FaceManager::GetFrame(UAudio2FaceInstance* Instance, const bool& as_
     }
 }
 
+/*
 void UAudio2FaceManager::GetSettingsNames(UAudio2FaceInstance* Instance)
 {
 
@@ -173,7 +177,7 @@ void UAudio2FaceManager::GetSettingsNames(UAudio2FaceInstance* Instance)
         Request(GetSettingsNames, FOnRequestCompleteDelegate::CreateUObject(this, &UAudio2FaceManager::OnGetSettingsNamesComplete));
     }
 }
-
+*/
 
 
 void UAudio2FaceManager::GetPlayerInstances()
@@ -220,18 +224,30 @@ void UAudio2FaceManager::SetRootPath(UAudio2FacePlayerInstance* PlayerInstance, 
         if (PlayerInstance)
             PlayerInstance->GetInstanceName(InstanceName);
 
-        const FString JsonString = FString::Printf(TEXT("{\"a2f_player\":\"%s\", \"dir_path\":\"%s\"}"),
-            *InstanceName,
-            *NewPath);
+        FString SanitizedPath;
+        bool bPathExists;
+        SanitizePath(NewPath, SanitizedPath, bPathExists);
 
-        const FHTTPRequest SetRootPathRequest(
-            A2F_ip,
-            A2F_port,
-            TEXT("/A2F/Player/SetRootPath"),
-            JsonString,
-            EHttpRequestVerbs::Post,
-            EHttpRequestHeaders::JSON);
-        Request(SetRootPathRequest, FOnRequestCompleteDelegate::CreateUObject(this, &UAudio2FaceManager::OnSetRootPathComplete));
+        if (bPathExists)
+        {
+            const FString JsonString = FString::Printf(TEXT("{\"a2f_player\":\"%s\", \"dir_path\":\"%s\"}"),
+                *InstanceName,
+                *SanitizedPath);
+
+            const FHTTPRequest SetRootPathRequest(
+                A2F_ip,
+                A2F_port,
+                TEXT("/A2F/Player/SetRootPath"),
+                JsonString,
+                EHttpRequestVerbs::Post,
+                EHttpRequestHeaders::JSON);
+            Request(SetRootPathRequest, FOnRequestCompleteDelegate::CreateUObject(this, &UAudio2FaceManager::OnSetRootPathComplete));
+        }
+        else
+        {
+            UE_LOG(Log_Audio2Face, Warning, TEXT("Can't find path while trying to set new Audio 2 Face root path"));
+        }
+
     }
     else
     {
@@ -583,27 +599,41 @@ void UAudio2FaceManager::ExportBlendshapes(UAudio2FaceBlendShapeSolver* solverNo
     FString BlendshapeSolver;
     solverNode->GetSolverNodeName(BlendshapeSolver);
 
-    // Replace \ with /
+    FString SanitizedPath;
+    bool SanitizeResult;
 
-    const FString JsonString = FString::Printf(TEXT("{\"solver_node\":\"%s\",\"export_directory\":%s,\"file_name\":\"%s\",\"format\":\"%s\",\"batch\":\"%s\",\"fps\":\"%d\"}"),
-    *BlendshapeSolver,
-    *export_directory,
-    *file_name,
-    *Audio2FaceHelpers::GetExportFormatString(format),
-    batch ? TEXT("true") : TEXT("false"),
-    fps
-    );
+    SanitizePath(export_directory, SanitizedPath, SanitizeResult);
 
-    const FHTTPRequest ExportBlendshapesRequest(
-        A2F_ip,
-        A2F_port,
-        TEXT("/A2F/Exporter/ExportBlendshapes"),
-        JsonString,
-        EHttpRequestVerbs::Post,
-        EHttpRequestHeaders::JSON
-    );
+    if (SanitizeResult)
+    {
+        const FString JsonString = FString::Printf(TEXT("{\"solver_node\":\"%s\",\"export_directory\":%s,\"file_name\":\"%s\",\"format\":\"%s\",\"batch\":\"%s\",\"fps\":\"%d\"}"),
+            *BlendshapeSolver,
+            *SanitizedPath,
+            *file_name,
+            *Audio2FaceHelpers::GetExportFormatString(format),
+            batch ? TEXT("true") : TEXT("false"),
+            fps
+        );
 
-    Request(ExportBlendshapesRequest);
+        const FHTTPRequest ExportBlendshapesRequest(
+            A2F_ip,
+            A2F_port,
+            TEXT("/A2F/Exporter/ExportBlendshapes"),
+            JsonString,
+            EHttpRequestVerbs::Post,
+            EHttpRequestHeaders::JSON
+        );
+
+        Request(ExportBlendshapesRequest);
+    }
+    else
+    {
+        UE_LOG(Log_Audio2Face, Warning, TEXT("Couldn't find path %s when exporting blendshapes"),*SanitizedPath);
+    }
+
+    
+
+
 }
 
 
@@ -727,7 +757,8 @@ void UAudio2FaceManager::OnGetFrameComplete(FHttpRequestPtr Request, FHttpRespon
     }
 }
 
-void UAudio2FaceManager::OnGetSettingsNamesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) 
+/*
+void UAudio2FaceManager::OnGetSettingsNamesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
     if (A2FRequestHandling(Response, bWasSuccessful))
     {
@@ -751,7 +782,7 @@ void UAudio2FaceManager::OnGetSettingsNamesComplete(FHttpRequestPtr Request, FHt
         UE_LOG(Log_Audio2Face, Error, TEXT("Failed to retrieve settings names: %s"), *Response->GetContentAsString());
     }
 }
-
+*/
 
 
 void UAudio2FaceManager::OnGetPlayerInstancesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
