@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HTTP.h"
 #include "Http/HTTPVerbs.h"
 #include "Http/HTTPHeaders.h"
 #include "HTTPRequest.generated.h"
