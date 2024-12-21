@@ -54,8 +54,8 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Instances")
     TArray<UAudio2FaceBlendShapeSolver*> BlendshapeSolvers;
 
-    UPROPERTY(BlueprintReadOnly, Category = "Settings")
-    TArray<FString> SettingsNames;
+    //UPROPERTY(BlueprintReadOnly, Category = "Settings")
+    //TArray<FString> SettingsNames;
 
     UPROPERTY(BlueprintReadOnly, Category = "Settings")
     FString RootPath;
@@ -107,7 +107,7 @@ public:
     * The frame will be returned by the OnGetFrameCompleted delegate.
     *
     * @param Instance Fullface instance that will be used.
-    * @param as_timestamp Set the timestamp instead of the frame or not.
+    * @param as_timestamp Get the timestamp (seconds) instead of the frame or not.
     */
     UFUNCTION(BlueprintCallable, Category = "General A2F")
     void GetFrame(UAudio2FaceInstance* Instance, const bool& as_timestamp);
@@ -125,8 +125,8 @@ public:
     * @param Instance Fullface instance that will be used
     * to retrieve the settings names
     */
-    UFUNCTION(BlueprintCallable, Category = "General A2F")
-    void GetSettingsNames(UAudio2FaceInstance* Instance);
+    //UFUNCTION(BlueprintCallable, Category = "General A2F")
+    //void GetSettingsNames(UAudio2FaceInstance* Instance);
 
 #pragma endregion
 
@@ -176,17 +176,16 @@ public:
 
     /**
      * Retrieves the name of the .wab file currently active in a player instance.
-     * The name is returned in form of string array by the OnGetTrackCompleted delegate.
      *
      * @param PlayerInstance Player instance from wich
-     * the current trackwill be retrieved.
+     * the current track will be retrieved.
      */
     UFUNCTION(BlueprintCallable, Category = "A2F Player")
     void GetCurrentTrack(UAudio2FacePlayerInstance* PlayerInstance);
 
     /**
      * Overrides the currently active track in a player instance.
-     * Expects an audio filename within the root track folder
+     * Expects an audio filename within the root track folder.
      *
      * @param PlayerInstance Player instance that will have the track overrided.
      * @param NewTrack New track name including extension (must be a name in the root path).
@@ -221,7 +220,7 @@ public:
     /**
      * Sets the current player to rewind mode
      *
-     * @param PlayerInstance Player instance that will rewind.
+     * @param PlayerInstance Player instance that will be set to rewind mode.
      */
     UFUNCTION(BlueprintCallable, Category = "A2F Player")
     void Rewind(UAudio2FacePlayerInstance* PlayerInstance);
@@ -240,21 +239,59 @@ public:
 
 #pragma region Audio2Emotion
 
+    /**
+     * Retrieves the names if all available emotion names
+     * The names will be returned by the OnGetEmotionNamesComplete delegate.
+     */
     UFUNCTION(BlueprintCallable, Category = "Audio 2 Emotion")
     void GetEmotionNames();
 
+    /**
+     * Refreshes the values of the Emotions struct based on a specific frame.
+     * The names will be returned by the OnGetEmotionComplete delegate.
+     * It also can be accesed from the variable Emotions in the manager.
+     *
+     * @param Instance Instance that will be used to gather the emotions value.
+     * @param frame Frame that will be used to retrieve the Emotions value.
+     * @param as_timestamp Determines if the values will be gathered using a frame o a value in seconds
+     */
     UFUNCTION(BlueprintCallable, Category = "Audio 2 Emotion")
     void GetEmotion(UAudio2FaceInstance* Instance, int32 frame, bool as_timestamp);
 
+    /**
+     * Set a new value for a specific emotion.
+     * Range is between 0 and 1.
+     *
+     * @param Instance Instance that will have the emotion value overrided.
+     * @param EmotionToSet Emotion that will have it's value overrided.
+     * @param Value The new emotion value (Range between 0 and 1)
+     */
     UFUNCTION(BlueprintCallable, Category = "Audio 2 Emotion")
     void SetEmotionValue(UAudio2FaceInstance* Instance, EEmotions EmotionToSet, float Value);
 
+    /**
+     * Enables auto emotion when A2F recieves streaming audio.
+     *
+     * @param Instance Instance that will have the emotion streaming enabled.
+     * @param enable Enable or not the auto emotion while streaming.
+     */
     UFUNCTION(BlueprintCallable, Category = "Audio 2 Emotion")
     void EnableEmotionStreaming(UAudio2FaceInstance* Instance, bool enable);
 
+    /**
+     * Enables Auto generate emotion values when a new track is selected 
+     * using the SetNewTrack function
+     *
+     * @param Instance Instance that will have the auto emotion generate on track change enabled.
+     * @param enable Enable or not the auto emotion while changing track.
+     */
     UFUNCTION(BlueprintCallable, Category = "Audio 2 Emotion")
     void EnableEmotionAutoGenerateOnTrackChange(UAudio2FaceInstance* Instance, bool enable);
 
+    /**
+     * Returns a float array of the emotion values stored in the Emotions struct.
+     * Use get emotions to refresh it's values.
+     */
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Audio 2 Emotion")
     TArray<float> GetEmotionValuesAsVectors();
 
@@ -267,15 +304,41 @@ public:
 
 #pragma region Export
 
+    /**
+    * Retrieve all current scene blendshape solvers
+    * Also refreshes the manager BlendshapeSolvers property.
+    * The blendshape solvers will be returned by the OnGetBlendshapeSolversCompleted delegate.
+    */
     UFUNCTION(BlueprintCallable, Category = "A2F Export")
     void GetBlendShapeSolvers();
 
+    /**
+    * Retrieve all current scene Live link nodes
+    * Also refreshes the manager LivkLinkNodes property.
+    * The live link nodes will be returned by the OnGetLiveLinkNodesCompleted delegate.
+    */
     UFUNCTION(BlueprintCallable, Category = "A2F Export")
     void GetStreamLiveLinkNodes();
 
+    /**
+    * Turn on or off the live link node streaming.
+    * 
+    * @param LiveLinkNode Live link node that will have the streaming turned on or off.
+    * @param activate Determines if the streaming will be turned on or off.
+    */
     UFUNCTION(BlueprintCallable, Category = "A2F Export")
     void ActivateStreamLiveLink(UAudio2FaceLiveLinkNode* LiveLinkNode, bool activate);
 
+    /**
+    * Export the animation in the selected format.
+    *
+    * @param solverNode Solver node that will be used for exporting.
+    * @param export_directory Absolute directory where the file will be exported.
+    * @param file_name The name the file will have.
+    * @param format Select export format.
+    * @param batch If true export all anims, else export only current anim.
+    * @param fps The ammount of fps the animation will be exported in.
+    */
     UFUNCTION(BlueprintCallable, Category = "A2F Export")
     void ExportBlendshapes
     (
@@ -355,7 +418,7 @@ private:
     void OnGetInstancesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
     void OnGetFrameComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
-    void OnGetSettingsNamesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+  //void OnGetSettingsNamesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
     void OnGetPlayerInstancesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
     void OnGetRootPathComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
@@ -370,7 +433,7 @@ private:
     void OnGetStreamLiveLinkNodesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
     /**
-     * Handles all know errors the request can be given and returns 
+     * Handles all known errors the request can be given and returns 
      * true or false depending if is secure to keep going with it.
      *
      * @param Response The HTTP Request original response
