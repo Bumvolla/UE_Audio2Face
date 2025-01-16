@@ -1,4 +1,7 @@
-// Dont copy.
+/*
+ * Copyright (c) 2025 Sora Mas
+ * All rights reserved.
+ */
 
 
 #include "A2F/Audio2FaceBPLib.h"

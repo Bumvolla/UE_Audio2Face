@@ -1,4 +1,7 @@
-// Don't copy.
+/*
+ * Copyright (c) 2025 Sora Mas
+ * All rights reserved.
+ */
 
 #pragma once
 

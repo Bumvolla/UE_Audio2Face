@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2025 Sora Mas
+ * All rights reserved.
+ */
+
 #include "Http/HTTPRequestBPLib.h"
 
 
