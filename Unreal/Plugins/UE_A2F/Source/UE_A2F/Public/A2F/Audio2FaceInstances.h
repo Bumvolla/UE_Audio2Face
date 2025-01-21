@@ -34,9 +34,9 @@ public:
     FString InstanceName;
 
     UPROPERTY(BlueprintReadOnly, Category = "Audio2FacePlayerInstance")
-    TEnumAsByte<EPlayerInstanceType> InstanceType;
+    EPlayerInstanceType InstanceType;
 
-    void Initialize(FString In_InstanceName, TEnumAsByte<EPlayerInstanceType> In_PlayerInstanceType);
+    void Initialize(FString In_InstanceName, EPlayerInstanceType In_PlayerInstanceType);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Audio2FacePlayerInstance")
     void GetInstanceName(FString& Out_InstanceName) const;
@@ -105,7 +105,7 @@ public:
     FString NodeName;
 
     UPROPERTY(BlueprintReadOnly, Category = "Audio2FaceLiveLink")
-    TEnumAsByte<EPlayerInstanceType> InstanceType;
+    EPlayerInstanceType InstanceType;
 
     void Initialize(FString In_NodeName);
 

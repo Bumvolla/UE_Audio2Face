@@ -15,7 +15,7 @@ void UAudio2FaceInstance::GetInstanceName(FString& Out_InstanceName) const
     Out_InstanceName = InstanceName;
 }
 
-void UAudio2FacePlayerInstance::Initialize(FString In_InstanceName, TEnumAsByte<EPlayerInstanceType> In_PlayerInstanceType)
+void UAudio2FacePlayerInstance::Initialize(FString In_InstanceName, EPlayerInstanceType In_PlayerInstanceType)
 {
     InstanceName = In_InstanceName;
     InstanceType = In_PlayerInstanceType;

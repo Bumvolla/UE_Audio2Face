@@ -6,16 +6,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/ObjectMacros.h"
+#include "Audio2FaceEnums.generated.h"
 
 UENUM(BlueprintType)
-enum EPlayerInstanceType : uint8
+enum class EPlayerInstanceType : uint8
 {
     Regular		UMETA(DisplayName = "Regular"),
     Streaming   UMETA(DisplayName = "Streaming"),
 };
 
 UENUM(BlueprintType)
-enum EEmotions : uint8
+enum class EEmotions : uint8
 {
     Amazement		UMETA(DisplayName = "Amazement"),
     Anger   UMETA(DisplayName = "Anger"),
@@ -30,7 +32,7 @@ enum EEmotions : uint8
 };
 
 UENUM(BlueprintType)
-enum EExportFormat : uint8
+enum class EExportFormat : uint8
 {
     Json		UMETA(DisplayName = "Json"),
     USD   UMETA(DisplayName = "USD"),
