@@ -334,6 +334,28 @@ void UAudio2FaceManager::SetTrack(UAudio2FacePlayerInstance* PlayerInstance, con
 
 }
 
+void UAudio2FaceManager::GetTime(UAudio2FacePlayerInstance* PlayerInstance)
+{
+    if (PlayerInstance)
+    {
+        FString InstanceName;
+        PlayerInstance->GetInstanceName(InstanceName);
+
+        FString JsonString = FString::Printf(TEXT("{\"a2f_player\":\"%s\"}"),
+            *InstanceName);
+
+        FHTTPRequest GetTimeRequest(
+            A2F_ip,
+            A2F_port,
+            TEXT("/A2F/Player/GetTime"),
+            JsonString,
+            EHttpRequestVerbs::Post,
+            EHttpRequestHeaders::JSON
+        );
+        Request(GetTimeRequest, FOnRequestCompleteDelegate::CreateUObject(this, &UAudio2FaceManager::OnGetCurrentTimeComplete));
+    }
+}
+
 void UAudio2FaceManager::Play(UAudio2FacePlayerInstance* PlayerInstance)
 {
     if (PlayerInstance)
@@ -665,6 +687,25 @@ void UAudio2FaceManager::GetManagerRootPath(FString& CurrentManagerRootPath)
         CurrentManagerRootPath = RootPath;
 }
 
+void UAudio2FaceManager::GetCurrentTrackLength(UAudio2FacePlayerInstance* PlayerInstance)
+{
+    FString InstanceName;
+    PlayerInstance->GetInstanceName(InstanceName);
+
+    FString JsonString = FString::Printf(TEXT("{\"a2f_player\":\"%s\"}"),
+        *InstanceName);
+
+    FHTTPRequest GetRangeRequest(
+        A2F_ip,
+        A2F_port,
+        TEXT("/A2F/Player/GetRange"),
+        JsonString,
+        EHttpRequestVerbs::Post,
+        EHttpRequestHeaders::JSON
+    );
+    Request(GetRangeRequest, FOnRequestCompleteDelegate::CreateUObject(this, &UAudio2FaceManager::OnGetCurrentTrackLengthComplete));
+}
+
 
 
 
@@ -921,6 +962,64 @@ void UAudio2FaceManager::OnGetCurrentTrackComplete(FHttpRequestPtr Request, FHtt
     else
     {
         UE_LOG(Log_Audio2Face, Error, TEXT("Failed to retrieve current track path"));
+    }
+}
+
+void UAudio2FaceManager::OnGetCurrentTimeComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+    if (A2FRequestHandling(Response, bWasSuccessful))
+    {
+        UE_LOG(Log_Audio2Face, Log, TEXT("Current time retrieved succesfully"));
+
+        TSharedPtr<FJsonObject> JsonObject;
+        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+
+        if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+        {
+            float ResultObject;
+            if (JsonObject->TryGetNumberField(TEXT("result"), ResultObject))
+            {
+                OnGetCurrentTimeCompleted.Broadcast(ResultObject);
+            }
+        }
+    }
+    else if (Response.IsValid())
+    {
+        UE_LOG(Log_Audio2Face, Error, TEXT("Failed to retrieve current time"));
+    }
+}
+
+void UAudio2FaceManager::OnGetCurrentTrackLengthComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+    if (A2FRequestHandling(Response, bWasSuccessful))
+    {
+        UE_LOG(Log_Audio2Face, Log, TEXT("Track length retrieved succesfully"));
+
+        TSharedPtr<FJsonObject> JsonObject;
+        TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+
+        if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+        {
+            const TSharedPtr<FJsonObject>* ResultObject;
+            if (JsonObject->TryGetObjectField(TEXT("result"), ResultObject))
+            {
+                const TArray<TSharedPtr<FJsonValue>>* DefaultArray;
+                if ((*ResultObject)->TryGetArrayField(TEXT("default"), DefaultArray))
+                {
+                    if (DefaultArray->Num() >= 2)
+                    {
+                        float TrackLength = (*DefaultArray)[1]->AsNumber();
+                        OnGetCurrentTrackLengthCompleted.Broadcast(TrackLength);
+                    }
+                }
+            }
+
+        }
+
+    }
+    else
+    {
+        UE_LOG(Log_Audio2Face, Error, TEXT("Failed to retrieve track length: %s"), *Response->GetContentAsString());
     }
 }
 
