@@ -29,9 +29,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetInstancesCompleted, const TArr
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetFrameCompleted, const int32&, frame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetSettingsNamesCompleted, const TArray<FString>&, SettingsNames);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetPlayerInstancesCompleted, const TArray<UAudio2FacePlayerInstance*>&, Instances);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetRootPathCompleted,const FString&, RootPath);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetRootPathCompleted, const FString&, RootPath);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetTracksCompleted, const TArray<FString>&, Tracks);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetCurrentTrackCompleted, const FString&, CurrentTrack);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetCurrentTimeCompleted, const float, CurrentTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetCurrentTrackLengthCompleted, const float&, CurrentTrackLength);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetEmotionNamesCompleted, const TArray<FString>&, EmotionNames);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetEmotionsCompleted, const FAudio2Emotion, Emotions);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGetLiveLinkNodesCompleted, const TArray<UAudio2FaceLiveLinkNode*>&, Nodes);
@@ -206,6 +208,12 @@ public:
         int32 end_time_range = -1
     );
 
+    /*
+     * Example info, fill
+     */
+    UFUNCTION(BlueprintCallable, Category = "A2F Player")
+    void GetTime(UAudio2FacePlayerInstance* PlayerInstance);
+
     /**
      * Starts playing the active track.
      *
@@ -361,14 +369,29 @@ public:
 
 #pragma region Unreal Helper Functions
 
+    /*
+     * Example info, fill
+     */
     UFUNCTION(BlueprintCallable, Category = "UE5-A2F")
     void GetSingleInstance(UAudio2FaceInstance*& SingleInstance);
 
+    /*
+     * Example info, fill
+     */
     UFUNCTION(BlueprintCallable, Category = "UE5-A2F")
     void GetSinglePlayerInstance(UAudio2FacePlayerInstance*& SinglePlayerInstace);
 
+    /*
+     * Example info, fill
+     */
     UFUNCTION(BlueprintCallable, Category = "UE5-A2F")
     void GetManagerRootPath(FString& CurrentManagerRootPath);
+
+    /*
+     * Example info, fill
+     */
+    UFUNCTION(BlueprintCallable, Category = "UE5-A2F")
+    void GetCurrentTrackLength(UAudio2FacePlayerInstance* PlayerInstance);
 
 #pragma endregion
 
@@ -397,6 +420,12 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category = "A2F Player Delegates")
     FOnGetCurrentTrackCompleted OnGetCurrentTrackCompleted;
+
+    UPROPERTY(BlueprintAssignable, Category = "A2F Player Delegates")
+    FOnGetCurrentTimeCompleted OnGetCurrentTimeCompleted;
+
+    UPROPERTY(BlueprintAssignable, Category = "A2F Player Delegates")
+    FOnGetCurrentTrackLengthCompleted OnGetCurrentTrackLengthCompleted;
 
     UPROPERTY(BlueprintAssignable, Category = "Audio 2 Emotion Delegates")
     FOnGetEmotionNamesCompleted OnGetEmotionNamesCompleted;
@@ -430,6 +459,8 @@ private:
     void OnSetRootPathComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
     void OnGetTracksComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
     void OnGetCurrentTrackComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+    void OnGetCurrentTimeComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+    void OnGetCurrentTrackLengthComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
     void OnGetEmotionNamesComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
     void OnGetEmotionComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
