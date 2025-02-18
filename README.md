@@ -16,7 +16,15 @@
 
 ## Features
 
+- Expose NVIDIA's Audio 2 Face API to Blueprints
+- Usage of the API to build additional features
 - Asyncronous REST Http requests
 - Working with A2F headless
 - Manager based architecture
+
+##
+
+![NodesShowcase](https://github.com/user-attachments/assets/be365ed5-c05d-49f2-8a41-936b6667c274)
+
+    
 
