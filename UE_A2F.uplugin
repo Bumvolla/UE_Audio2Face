@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0",
+	"VersionName": "1.1",
 	"FriendlyName": "UE_Audio2Face",
 	"Description": "Implementation of NVIDIAs A2F API endpoints to be accesible in Unreal Engine Blueprints",
 	"Category": "Code Plugins",
@@ -9,7 +9,7 @@
 	"CreatedByURL": "https://github.com/Bumvolla",
 	"DocsURL": "https://bumvolla.github.io/2024/12/19/A2FDocs/",
 	"MarketplaceURL": "com.epicgames.launcher://ue/Fab/product/35118796-d20a-46a5-8848-9494acd1b051",
-	"SupportURL": "https://bumvolla.github.io/ycontact/",
+	"SupportURL": "https://bumvolla.github.io/contact/",
 	"CanContainContent": false,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
